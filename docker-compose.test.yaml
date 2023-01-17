@@ -1,0 +1,20 @@
+version: '3.7'
+
+services:
+  mysql:
+    image: mysql:5.7
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: getground
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - 3306:3306
+    volumes:
+      - "./docker/mysql/dump.sql:/docker-entrypoint-initdb.d/dump.sql"
+      - test-db:/var/lib/mysql
+
+volumes:
+  # isolate db storage from production environment
+  test-db:
