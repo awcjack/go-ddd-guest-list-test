@@ -1,0 +1,5 @@
+package: interfaces
+# generating chi server based on openapi specification
+generate:
+  chi-server: true
+output: ./event.gen.go

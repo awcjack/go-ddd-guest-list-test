@@ -1,0 +1,5 @@
+package: interfaces
+# generating type based on openapi specification
+generate:
+  models: true
+output: ./types.gen.go
