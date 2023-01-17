@@ -1,0 +1,252 @@
+openapi: 3.1.0
+info:
+  title: Guestlist
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+tags:
+  - name: table
+    description: Everything about tables
+  - name: guest
+    description: Everything about guests
+  - name: seat
+    description: Everything about empty seat
+paths:
+  /tables:
+    post:
+      tags:
+        - table
+      summary: Add table to the system
+      operationId: addTable
+      requestBody:
+        description: Capacity for the new table (Maximum 2147483647)
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [capacity]
+              properties:
+                capacity:
+                  type: integer
+                  format: int64
+                  example: 1
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddTable'
+        '400':
+          description: Invalid capacity supplied
+  /guest_list/{name}:
+    post:
+      tags:
+        - guest
+      summary: Add guest to guestlist
+      description: Adding guest to guestlist with accompany guest and table info
+      operationId: addGuest
+      parameters:
+        - $ref: '#/components/parameters/GuestNameParam'
+      requestBody:
+        description: Assigning guest and accompany guest to specific table
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [table, accompanying_guests]
+              properties:
+                table:
+                  type: integer
+                  format: int
+                  example: 1
+                accompanying_guests:
+                  type: integer
+                  format: int
+                  example: 1
+        required: true
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuestName'
+        '400':
+          description: Insufficient space
+  /guest_list:
+    get:
+      tags:
+        - guest
+      summary: Display guestlist
+      description: Adding guest to guestlist with accompany guest and table info
+      operationId: ListGuest
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuestList'
+  /guests/{name}:
+    put:
+      tags:
+        - guest
+      summary: guest checkin
+      description: guest arrive (accompanying guest may differ from guest list)
+      operationId: checkInGuest
+      parameters:
+        - $ref: '#/components/parameters/GuestNameParam'
+      requestBody:
+        description: Accompany guest number when guest arrive
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [accompanying_guests]
+              properties:
+                accompanying_guests:
+                  type: integer
+                  format: int
+                  example: 1
+        required: true
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GuestName'
+        '400':
+          description: Insufficient space or guest arrived already
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      tags:
+        - guest
+      summary: guest checkout
+      description: guest leave (leave with all accompanying guest)
+      operationId: checkOutGuest
+      parameters:
+        - $ref: '#/components/parameters/GuestNameParam'
+      responses:
+        '204':
+          description: successful operation
+        '400':
+          description: guest not arrived
+  /guests:
+    get:
+      tags:
+        - guest
+      summary: list arrived guest
+      description: list arrived guest
+      operationId: listArrivedGuest
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArrivedGuests'
+  /seats_empty:
+    get:
+      tags:
+        - seat
+      summary: Count empty seat
+      description: count empty seat for all tables
+      operationId: getEmptySeat
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmptySeats'
+components:
+  parameters:
+    GuestNameParam:
+      name: name
+      in: path
+      description: guest name
+      schema:
+        type: string
+        example: Tom
+      required: true
+  schemas:
+    GuestName:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          example: Tom
+    Guest:
+      type: object
+      required: [name, table, accompanying_guests]
+      properties:
+        name:
+          type: string
+          example: Tom
+        table:
+          type: integer
+          example: 1
+        accompanying_guests:
+          type: integer
+          example: 1
+    GuestList:
+      type: object
+      required: [guests]
+      properties:
+        guests:
+          type: array
+          items:
+            $ref: '#/components/schemas/Guest'
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+          example: Insufficient space
+    ArrivedGuest:
+      type: object
+      required: [name, accompanying_guests, time_arrived]
+      properties:
+        name:
+          type: string
+          example: Tom
+        accompanying_guests:
+          type: integer
+          example: 1
+        time_arrived:
+          type: string
+          example: 0001-01-01 00:00:00 +0000 UTC
+    ArrivedGuests:
+      type: object
+      required: [guests]
+      properties:
+        guests:
+          type: array
+          items:
+            $ref: '#/components/schemas/ArrivedGuest'
+    EmptySeats:
+      type: object
+      required: [seats_empty]
+      properties:
+        seats_empty:
+          type: integer
+          example: 1
+    AddTable:
+      type: object
+      required: [id, capacity]
+      properties:
+        id:
+          type: integer
+          example: 1
+        capacity:
+          type: integer
+          format: int64
+          example: 1
